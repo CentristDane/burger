@@ -1,45 +1,49 @@
 var express = require("express");
 
+var burgers = require("../models/burger.js");
+
 var router = express.Router();
 
-// Import the model (cat.js) to use its database functions.
-var burger = require("../models/burger.js");
+//get all burgers
+//send request to module which sends it to orm
+//orm returns via module, module returns it back to controller to be rendered
+router.get('/', function(req, res){
 
-// Create all our routes and set up logic within those routes where required.
-router.get("/", function(req, res) {
-  cat.all(function(data) {
-    var hbsObject = {
-      burger: data
-    };
-    console.log(hbsObject);
-    res.render("index", hbsObject);
+    burgers.all(function(data){
+      var hbsObject = {
+        burger: data
+      };
+      console.log(hbsObject);
+      res.render("index", hbsObject);
+    });
+});
+
+router.post("/api/burgers", function(req, res){
+  burgers.create([
+    "burger_name", "devoured"
+  ], [req.body.name, req.body.devoured], function(result){
+    //send back the id of the new burger
+    res.json({id: result.insertId});
   });
 });
 
-router.post("/api/burger", function(req, res) {
-  burger.create([
-    "burger_name" 
-  ], [
-    req.body.name
-  ], function(result) {
-    // Send back the ID of the new quote
-    res.json({ id: result.insertId });
-  });
-});
-
-router.put("/api/burger/:id", function(req, res) {
-  var condition = "id = " + req.params.id;
+router.put("/api/burgers/:id", function(req,res){
+  var condition = parseInt(req.params.id);
 
   console.log("condition", condition);
 
-  cat.update({
-    name: req.body.name
-  }, condition, function(result) {
-    if (result.changedRows == 0) {
-      // If no rows were changed, then the ID must not exist, so 404
-      return res.status(404).end();
-    } else {
-      res.status(200).end();
-    }
+  burgers.update(condition, function(data){
+
+    var hbsObject = {
+      burgers: data
+    };
+
+    res.render("index", hbsObject);
+  
   });
 });
+
+
+
+
+module.exports = router;

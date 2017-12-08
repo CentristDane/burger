@@ -3,8 +3,10 @@ var bodyParser = require("body-parser");
 //////
 var method = require("method-override");
 ////
-var app = express();
 var port = 3000;
+var app = express();
+
+app.use(express.static("public"));
 
 // Parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -15,4 +17,9 @@ var exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
-var mysql = require("mysql");
+
+var routes = require("./controllers/burger_controller.js");
+
+app.use("/", routes);
+
+app.listen(port);
